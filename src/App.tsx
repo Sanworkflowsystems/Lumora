@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import Spline from '@splinetool/react-spline';
+import { LazySpline } from './components/LazySpline';
 import { supabase, type FormSubmission } from './lib/supabase';
-import { Timeline } from './components/ui/timeline';
-import { HeroGeometric } from './components/ui/shape-landing-hero';
-import { BackgroundPaths } from './components/ui/background-paths';
-import { AnimatedQuote } from './components/ui/animated-quote';
-import { ScrollIndicator } from './components/ui/scroll-indicator';
-import { SecuritySection } from './components/ui/security-section';
-import { TestimonialCarousel } from './components/ui/testimonial-carousel';
+import { LazyTimeline, LazySecuritySection, LazyTestimonialCarousel, LazyAnimatedQuote } from './components/LazyComponents';
 import { 
   Bot, 
   BarChart3, 
@@ -40,6 +34,7 @@ function App() {
   const [heroDescription, setHeroDescription] = useState('');
   const [headingComplete, setHeadingComplete] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showSpline, setShowSpline] = useState(false);
   
   // Memoized constants to prevent recreation
   const fullText = useMemo(() => 'LUMORA.AI', []);
@@ -230,6 +225,12 @@ function App() {
     },
   ], [scrollToForm]);
 
+  // Load Spline after initial render to improve initial load
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSpline(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Optimized typewriter effect with requestAnimationFrame
   useEffect(() => {
     let i = 0;
@@ -295,15 +296,22 @@ function App() {
     };
   }, [heroHeadingText, heroDescriptionText]);
   
-  // Header scroll effect
+  // Header scroll effect - optimized with requestAnimationFrame
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const heroHeight = window.innerHeight * 0.8; // Approximate hero section height
-      setIsScrolled(scrollPosition > heroHeight);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY;
+          const heroHeight = window.innerHeight * 0.8;
+          setIsScrolled(scrollPosition > heroHeight);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -353,12 +361,16 @@ function App() {
   return (
     <div className="min-h-screen bg-black text-gray-100 overflow-x-hidden">
       {/* Global Spline Background - Fixed throughout entire site */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none" style={{ minHeight: '100vh' }}>
         <div className="absolute inset-0 opacity-30">
-          <Spline
-            scene="https://prod.spline.design/FlDdsJ8TfqzlzJju/scene.splinecode"
-            style={{ width: '100%', height: '100%' }}
-          />
+          {showSpline ? (
+            <LazySpline
+              scene="https://prod.spline.design/FlDdsJ8TfqzlzJju/scene.splinecode"
+              style={{ width: '100%', height: '100%' }}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 to-black" />
+          )}
         </div>
         <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-black/20 to-black/30"></div>
       </div>
@@ -433,12 +445,12 @@ function App() {
         </div>
 
         <div className="relative z-20 max-w-7xl mx-auto px-10 text-center">
-          <h1 className="text-6xl md:text-8xl font-bold leading-tight mb-16 tracking-tight bg-gradient-to-r from-white via-cyan-200 to-blue-300 bg-clip-text text-transparent font-heading">
+          <h1 className="text-6xl md:text-8xl font-bold leading-tight mb-16 tracking-tight bg-gradient-to-r from-white via-cyan-200 to-blue-300 bg-clip-text text-transparent font-heading" style={{ minHeight: '120px' }}>
             {heroHeading}<span className={headingComplete ? 'hidden' : 'animate-pulse'}>_</span>
           </h1>
           
           <div className="max-w-4xl mx-auto mb-20">
-            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-medium tracking-wide">
+            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-medium tracking-wide" style={{ minHeight: '80px' }}>
               {heroDescription}<span className={heroDescription.length === heroDescriptionText.length ? 'hidden' : 'animate-pulse'}>_</span>
             </p>
           </div>
@@ -457,7 +469,7 @@ function App() {
       </section>
 
       {/* First Animated Quote */}
-      <AnimatedQuote 
+      <LazyAnimatedQuote
         text="Transform possibility into performance. Let your business redefine what's possible."
         className="py-16 md:py-24"
         variant="typewriter"
@@ -466,11 +478,11 @@ function App() {
 
       {/* Products Timeline Section */}
       <section id="our-solutions">
-      <Timeline data={timelineData} />
+      <LazyTimeline data={timelineData} />
       </section>
 
       {/* Second Animated Quote */}
-      <AnimatedQuote 
+      <LazyAnimatedQuote
         text="Solutions that scale your business. Results that speak."
         className="py-16 md:py-24"
         variant="neon"
@@ -531,7 +543,7 @@ function App() {
       </section>
 
       {/* Third Animated Quote */}
-      <AnimatedQuote 
+      <LazyAnimatedQuote
         text="Where smart systems give your business the competitive edge."
         className="py-16 md:py-24"
         variant="glow"
@@ -591,10 +603,10 @@ function App() {
       {/* Social Proof Section */}
 
       {/* Security Section */}
-      <SecuritySection />
+      <LazySecuritySection />
 
       {/* Testimonial Section */}
-      <TestimonialCarousel />
+      <LazyTestimonialCarousel />
 
       {/* FAQ Section */}
       <section id="faq" className="py-16 md:py-24 relative">

@@ -10,9 +10,9 @@ interface AnimatedQuoteProps {
   typeSpeed?: number;
 }
 
-export const AnimatedQuote: React.FC<AnimatedQuoteProps> = ({ 
-  text, 
-  className = '', 
+export const AnimatedQuote: React.FC<AnimatedQuoteProps> = React.memo(({
+  text,
+  className = '',
   variant = 'typewriter',
   typeSpeed = 50
 }) => {
@@ -26,7 +26,7 @@ export const AnimatedQuote: React.FC<AnimatedQuoteProps> = ({
 
     if (variant === 'typewriter') {
       let i = 0;
-      
+
       const typeInterval = setInterval(() => {
         if (i < text.length) {
           setDisplayText(text.slice(0, i + 1));
@@ -36,14 +36,14 @@ export const AnimatedQuote: React.FC<AnimatedQuoteProps> = ({
           clearInterval(typeInterval);
         }
       }, typeSpeed);
-      
+
       return () => clearInterval(typeInterval);
     } else {
       // For non-typewriter variants, show text immediately when in view
       setDisplayText(text);
       setIsComplete(true);
     }
-  }, [isInView, text, variant]);
+  }, [isInView, text, variant, typeSpeed]);
 
   const getVariantClasses = () => {
     switch (variant) {
@@ -97,4 +97,4 @@ export const AnimatedQuote: React.FC<AnimatedQuoteProps> = ({
       </div>
     </section>
   );
-};
+});

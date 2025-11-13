@@ -12,9 +12,9 @@ export default {
         }
       },
       fontFamily: {
-        'mono': ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
-        'sans': ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
-        'heading': ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+        'mono': ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+        'heading': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
